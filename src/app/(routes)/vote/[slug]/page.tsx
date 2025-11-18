@@ -23,13 +23,17 @@ import {
     verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { GripVertical, Check, Twitter, Youtube, Facebook, Instagram, Globe } from "lucide-react";
+import { GripVertical, Check, Twitter, Youtube, Facebook, Instagram, Globe, Sparkles, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { PickOneVote } from "@/components/voting/PickOneVote";
 import { MultipleChoiceVote } from "@/components/voting/MultipleChoiceVote";
 import { RatingVote } from "@/components/voting/RatingVote";
 import { HeadToHeadVote } from "@/components/voting/HeadToHeadVote";
+import { PremiumVotePage } from "@/components/voting/PremiumVotePage";
+import { PremiumVotingCard } from "@/components/voting/PremiumVotingCard";
+import { motion } from "framer-motion";
+import { cn } from "@/lib/utils";
 
 interface Contestant {
     id: string;
@@ -100,7 +104,8 @@ function SortableItem({
     const style = {
         transform: CSS.Transform.toString(transform),
         transition,
-        opacity: isDragging ? 0.5 : 1,
+        opacity: isDragging ? 0.6 : 1,
+        scale: isDragging ? 0.98 : 1,
     };
 
     const getInitials = (name: string) => {
@@ -113,40 +118,65 @@ function SortableItem({
     };
 
     return (
-        <div
+        <motion.div
             ref={setNodeRef}
             style={style}
-            className="flex items-center gap-3 p-4 bg-card border rounded-lg cursor-grab active:cursor-grabbing"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.05 }}
+            whileHover={{ scale: 1.02 }}
+            className={cn(
+                "group relative flex items-center gap-4 p-5",
+                "bg-gradient-to-br from-white to-slate-50/50",
+                "border-2 rounded-xl cursor-grab active:cursor-grabbing",
+                "shadow-sm hover:shadow-lg transition-all duration-300",
+                "backdrop-blur-sm",
+                isDragging && "z-50 shadow-2xl"
+            )}
         >
+            {/* Rank badge */}
+            <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center font-bold text-primary border-2 border-primary/20 group-hover:border-primary/40 transition-colors">
+                {index + 1}
+            </div>
+
+            {/* Drag handle */}
             <div
                 {...attributes}
                 {...listeners}
-                className="text-muted-foreground hover:text-foreground"
+                className="flex-shrink-0 text-muted-foreground hover:text-primary transition-colors cursor-grab active:cursor-grabbing p-1"
             >
                 <GripVertical className="h-5 w-5" />
             </div>
-            <Avatar className="h-10 w-10">
+
+            {/* Avatar */}
+            <Avatar className="h-14 w-14 border-2 border-slate-200 group-hover:border-primary/40 transition-colors shadow-sm">
                 <AvatarImage src={contestant.avatar} alt={contestant.name} />
-                <AvatarFallback>{getInitials(contestant.name)}</AvatarFallback>
+                <AvatarFallback className="bg-gradient-to-br from-primary/20 to-secondary/20 text-primary font-bold">
+                    {getInitials(contestant.name)}
+                </AvatarFallback>
             </Avatar>
-            <div className="flex-1">
-                <div className="font-medium">{contestant.name}</div>
+
+            {/* Content */}
+            <div className="flex-1 min-w-0">
+                <div className="font-semibold text-base group-hover:text-primary transition-colors">
+                    {contestant.name}
+                </div>
                 {contestant.description && (
-                    <div className="text-sm text-muted-foreground">
+                    <div className="text-sm text-muted-foreground mt-1 line-clamp-2">
                         {contestant.description}
                     </div>
                 )}
                 {contestant.socialLinks && (
-                    <div className="flex items-center gap-2 mt-1">
+                    <div className="flex items-center gap-2 mt-2">
                         {contestant.socialLinks.twitter && (
                             <a
                                 href={contestant.socialLinks.twitter}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 onClick={(e) => e.stopPropagation()}
-                                className="text-muted-foreground hover:text-foreground"
+                                className="text-muted-foreground hover:text-primary transition-colors p-1 rounded hover:bg-primary/10"
                             >
-                                <Twitter className="h-3 w-3" />
+                                <Twitter className="h-4 w-4" />
                             </a>
                         )}
                         {contestant.socialLinks.youtube && (
@@ -155,9 +185,9 @@ function SortableItem({
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 onClick={(e) => e.stopPropagation()}
-                                className="text-muted-foreground hover:text-foreground"
+                                className="text-muted-foreground hover:text-primary transition-colors p-1 rounded hover:bg-primary/10"
                             >
-                                <Youtube className="h-3 w-3" />
+                                <Youtube className="h-4 w-4" />
                             </a>
                         )}
                         {contestant.socialLinks.facebook && (
@@ -166,9 +196,9 @@ function SortableItem({
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 onClick={(e) => e.stopPropagation()}
-                                className="text-muted-foreground hover:text-foreground"
+                                className="text-muted-foreground hover:text-primary transition-colors p-1 rounded hover:bg-primary/10"
                             >
-                                <Facebook className="h-3 w-3" />
+                                <Facebook className="h-4 w-4" />
                             </a>
                         )}
                         {contestant.socialLinks.instagram && (
@@ -177,9 +207,9 @@ function SortableItem({
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 onClick={(e) => e.stopPropagation()}
-                                className="text-muted-foreground hover:text-foreground"
+                                className="text-muted-foreground hover:text-primary transition-colors p-1 rounded hover:bg-primary/10"
                             >
-                                <Instagram className="h-3 w-3" />
+                                <Instagram className="h-4 w-4" />
                             </a>
                         )}
                         {contestant.socialLinks.website && (
@@ -188,15 +218,18 @@ function SortableItem({
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 onClick={(e) => e.stopPropagation()}
-                                className="text-muted-foreground hover:text-foreground"
+                                className="text-muted-foreground hover:text-primary transition-colors p-1 rounded hover:bg-primary/10"
                             >
-                                <Globe className="h-3 w-3" />
+                                <Globe className="h-4 w-4" />
                             </a>
                         )}
                     </div>
                 )}
             </div>
-        </div>
+
+            {/* Hover gradient overlay */}
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl pointer-events-none" />
+        </motion.div>
     );
 }
 
@@ -644,23 +677,6 @@ export default function VotePage() {
 
     // Apply customizations
     const custom = contest.customization || {};
-    const customStyles: React.CSSProperties = {
-        fontFamily: custom.fontFamily || undefined,
-        backgroundColor: custom.backgroundColor || undefined,
-        color: custom.textColor || undefined,
-    };
-
-    // Background image styling (Notion-style)
-    const backgroundImageStyles: React.CSSProperties = {};
-    if (custom.backgroundImage) {
-        backgroundImageStyles.backgroundImage = `url(${custom.backgroundImage})`;
-        backgroundImageStyles.backgroundSize = "cover";
-        backgroundImageStyles.backgroundPosition = "center";
-        backgroundImageStyles.backgroundAttachment = "fixed"; // Fixed background like Notion
-        backgroundImageStyles.backgroundRepeat = "no-repeat";
-        backgroundImageStyles.minHeight = "100vh";
-        backgroundImageStyles.position = "relative";
-    }
 
     const getButtonClass = () => {
         const base = "px-4 py-2 font-medium transition-colors";
@@ -677,275 +693,337 @@ export default function VotePage() {
     const borderRadius = custom.borderRadius || "0.5rem";
 
     return (
-        <>
-            {custom.customCSS && (
-                <style dangerouslySetInnerHTML={{ __html: custom.customCSS }} />
-            )}
-            <div
-                className="min-h-screen relative"
-                style={backgroundImageStyles}
-            >
-                {/* Background overlay for readability */}
-                {custom.backgroundImage && custom.backgroundOverlay && (
-                    <div
-                        className="fixed inset-0 -z-10"
-                        style={{
-                            backgroundColor: custom.backgroundOverlay,
-                        }}
-                    />
-                )}
-
-                {/* Content wrapper with overlay background if needed */}
-                <div
-                    className="relative z-0"
-                    style={customStyles}
+        <PremiumVotePage customization={custom}>
+            <div className="container mx-auto max-w-4xl py-8 sm:py-12 px-4 sm:px-6">
+                {/* Premium Header Section */}
+                <motion.div
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6 }}
+                    className="mb-12 text-center space-y-6"
                 >
-                    <div className="container mx-auto max-w-4xl py-8 px-4">
-                        {/* Header Image */}
-                        {custom.headerImage && (
-                            <div className="mb-6">
+                    {/* Header Image */}
+                    {custom.headerImage && (
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.5, delay: 0.2 }}
+                            className="mb-8"
+                        >
+                            <div className="relative overflow-hidden rounded-2xl shadow-2xl">
                                 <img
                                     src={custom.headerImage}
                                     alt="Header"
-                                    className="w-full h-48 object-cover rounded-lg"
-                                    style={{ borderRadius }}
+                                    className="w-full h-64 sm:h-80 object-cover"
+                                    style={{ borderRadius: custom.borderRadius || "1rem" }}
                                 />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
                             </div>
-                        )}
+                        </motion.div>
+                    )}
 
-                        <div className="mb-8">
-                            <div className="flex items-center gap-3 mb-2">
-                                {custom.logo && (
-                                    <img
-                                        src={custom.logo}
-                                        alt="Logo"
-                                        className="h-12 w-12 rounded"
-                                        style={{ borderRadius }}
-                                    />
-                                )}
-                                <h1
-                                    className="text-3xl font-bold"
-                                    style={{ color: custom.textColor || undefined }}
-                                >
-                                    {contest.name}
-                                </h1>
-                            </div>
+                    {/* Logo and Title */}
+                    <div className="flex flex-col items-center gap-4">
+                        {custom.logo && (
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.8 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ duration: 0.5, delay: 0.1 }}
+                                className="relative"
+                            >
+                                <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/20 blur-2xl rounded-full" />
+                                <img
+                                    src={custom.logo}
+                                    alt="Logo"
+                                    className="relative h-20 w-20 sm:h-24 sm:w-24 rounded-2xl shadow-xl border-4 border-white/50"
+                                    style={{ borderRadius: custom.borderRadius || "1rem" }}
+                                />
+                            </motion.div>
+                        )}
+                        <div className="space-y-3">
+                            <motion.h1
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.5, delay: 0.3 }}
+                                className="text-4xl sm:text-5xl md:text-6xl font-bold bg-gradient-to-r from-foreground via-foreground/90 to-foreground/80 bg-clip-text text-transparent"
+                                style={{
+                                    color: custom.textColor || undefined,
+                                    fontFamily: custom.fontFamily,
+                                }}
+                            >
+                                {contest.name}
+                            </motion.h1>
                             {contest.description && (
-                                <p style={{ color: custom.textColor ? `${custom.textColor}CC` : undefined }}>
+                                <motion.p
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    transition={{ duration: 0.5, delay: 0.4 }}
+                                    className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed"
+                                    style={{
+                                        color: custom.textColor ? `${custom.textColor}DD` : undefined,
+                                    }}
+                                >
                                     {contest.description}
-                                </p>
+                                </motion.p>
                             )}
                         </div>
+                    </div>
+                </motion.div>
 
-                        {contest.oneVotePerEmail && (
-                            <Card
-                                className="mb-6"
+                {/* Email Input */}
+                {contest.oneVotePerEmail && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.5 }}
+                        className="mb-8"
+                    >
+                        <Card
+                            className="border-2 shadow-lg backdrop-blur-sm"
+                            style={{
+                                backgroundColor: custom.backgroundImage
+                                    ? (custom.backgroundColor || "rgba(255, 255, 255, 0.95)")
+                                    : (custom.backgroundColor || "white"),
+                                borderRadius: custom.borderRadius || "1rem",
+                            }}
+                        >
+                            <CardContent className="pt-6">
+                                <Label htmlFor="email" className="text-base font-semibold">
+                                    Email (required for voting)
+                                </Label>
+                                <Input
+                                    id="email"
+                                    type="email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    placeholder="your@email.com"
+                                    className="mt-3 h-12 text-base"
+                                    style={{
+                                        borderRadius: custom.borderRadius || "0.5rem",
+                                    }}
+                                />
+                            </CardContent>
+                        </Card>
+                    </motion.div>
+                )}
+
+                {/* Premium Voting Categories */}
+                <div className="space-y-8">
+                    {contest.categories.map((category, categoryIdx) => {
+                        const votingType = category.votingType || "rank";
+                        const categoryRankings = rankings[category.id] || [];
+                        const categoryVote = votes[category.id];
+
+                        // Determine if category still needs a vote
+                        const needsVote = votingType === "rank"
+                            ? (rankings[category.id] && rankings[category.id].length > 0)
+                            : (categoryVote !== null && categoryVote !== undefined);
+
+                        // Skip if already voted (no longer needs vote)
+                        if (!needsVote) return null;
+
+                        const canSubmit = votingType === "rank"
+                            ? categoryRankings.length > 0
+                            : categoryVote !== null && categoryVote !== undefined;
+
+                        // Build description with voting instructions
+                        let votingDescription = category.description || "";
+                        if (votingType === "rank" && category.maxRankings) {
+                            votingDescription += ` Rank your top ${category.maxRankings} contestants.`;
+                        } else if (votingType === "multiple-choice" && category.maxSelections) {
+                            votingDescription += ` Select up to ${category.maxSelections} contestant${category.maxSelections > 1 ? "s" : ""}.`;
+                        } else if (votingType === "rating") {
+                            votingDescription += ` Rate each contestant from 1 to ${category.ratingScale || 5}.`;
+                        } else if (votingType === "head-to-head") {
+                            votingDescription += ` Compare contestants in pairs and choose your preferred option.`;
+                        }
+
+                        return (
+                            <PremiumVotingCard
+                                key={category.id}
+                                title={category.name}
+                                description={votingDescription.trim()}
+                                index={categoryIdx}
                                 style={{
                                     backgroundColor: custom.backgroundImage
                                         ? (custom.backgroundColor || "rgba(255, 255, 255, 0.95)")
-                                        : undefined,
+                                        : (custom.backgroundColor || "white"),
+                                    borderRadius: custom.borderRadius || "1rem",
+                                    borderColor: custom.primaryColor ? `${custom.primaryColor}20` : undefined,
                                 }}
                             >
-                                <CardContent className="pt-6">
-                                    <Label htmlFor="email">Email (required for voting)</Label>
-                                    <Input
-                                        id="email"
-                                        type="email"
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
-                                        placeholder="your@email.com"
-                                        className="mt-2"
+                                {/* Render appropriate voting component based on type */}
+                                {votingType === "rank" && (
+                                    <DndContext
+                                        sensors={sensors}
+                                        collisionDetection={closestCenter}
+                                        onDragEnd={(e) => handleDragEnd(e, category.id)}
+                                    >
+                                        <SortableContext
+                                            items={categoryRankings}
+                                            strategy={verticalListSortingStrategy}
+                                        >
+                                            <div className="space-y-2">
+                                                {categoryRankings.map((contestantId, index) => {
+                                                    const contestant = category.contestants.find(
+                                                        (c) => c.id === contestantId
+                                                    );
+                                                    if (!contestant) return null;
+                                                    return (
+                                                        <SortableItem
+                                                            key={contestantId}
+                                                            contestant={contestant}
+                                                            index={index}
+                                                        />
+                                                    );
+                                                })}
+                                            </div>
+                                        </SortableContext>
+                                    </DndContext>
+                                )}
+
+                                {votingType === "pick-one" && (
+                                    <PickOneVote
+                                        contestants={category.contestants}
+                                        onVote={(selection) => handlePickOneVote(category.id, selection)}
+                                        disabled={submitting}
                                     />
-                                </CardContent>
-                            </Card>
-                        )}
+                                )}
 
-                        <div className="space-y-6">
-                            {contest.categories.map((category) => {
-                                const votingType = category.votingType || "rank";
-                                const categoryRankings = rankings[category.id] || [];
-                                const categoryVote = votes[category.id];
+                                {votingType === "multiple-choice" && (
+                                    <MultipleChoiceVote
+                                        contestants={category.contestants}
+                                        maxSelections={category.maxSelections}
+                                        onVote={(selections) => handleMultipleChoiceVote(category.id, selections)}
+                                        disabled={submitting}
+                                    />
+                                )}
 
-                                // Determine if category still needs a vote
-                                const needsVote = votingType === "rank"
-                                    ? (rankings[category.id] && rankings[category.id].length > 0)
-                                    : (categoryVote !== null && categoryVote !== undefined);
+                                {votingType === "rating" && (
+                                    <RatingVote
+                                        contestants={category.contestants}
+                                        maxRating={category.ratingScale || 5}
+                                        onVote={(ratings) => handleRatingVote(category.id, ratings)}
+                                        disabled={submitting}
+                                    />
+                                )}
 
-                                // Skip if already voted (no longer needs vote)
-                                if (!needsVote) return null;
+                                {votingType === "head-to-head" && (
+                                    <HeadToHeadVote
+                                        contestants={category.contestants}
+                                        onVote={(comparisons) => handleHeadToHeadVote(category.id, comparisons)}
+                                        disabled={submitting}
+                                    />
+                                )}
 
-                                const canSubmit = votingType === "rank"
-                                    ? categoryRankings.length > 0
-                                    : categoryVote !== null && categoryVote !== undefined;
-
-                                return (
-                                    <Card
-                                        key={category.id}
+                                <motion.div
+                                    className="pt-6 border-t"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    transition={{ delay: 0.3 }}
+                                >
+                                    <motion.button
+                                        onClick={() => handleSubmit(category.id)}
+                                        disabled={submitting || !canSubmit}
+                                        whileHover={!submitting && canSubmit ? { scale: 1.02 } : {}}
+                                        whileTap={!submitting && canSubmit ? { scale: 0.98 } : {}}
+                                        className={cn(
+                                            "w-full flex items-center justify-center gap-2 font-semibold text-base py-4 transition-all duration-200 shadow-lg hover:shadow-xl",
+                                            getButtonClass()
+                                        )}
                                         style={{
-                                            backgroundColor: custom.backgroundImage
-                                                ? (custom.backgroundColor || "rgba(255, 255, 255, 0.95)")
-                                                : undefined,
+                                            backgroundColor: custom.primaryColor || "#3b82f6",
+                                            color: "#ffffff",
+                                            borderRadius: custom.borderRadius || "0.75rem",
+                                            opacity: (submitting || !canSubmit) ? 0.6 : 1,
+                                            cursor: (submitting || !canSubmit) ? "not-allowed" : "pointer",
                                         }}
                                     >
-                                        <CardHeader>
-                                            <CardTitle>{category.name}</CardTitle>
-                                            {category.description && (
-                                                <CardDescription>{category.description}</CardDescription>
-                                            )}
-                                            {votingType === "rank" && category.maxRankings && (
-                                                <CardDescription>
-                                                    Rank your top {category.maxRankings} contestants
-                                                </CardDescription>
-                                            )}
-                                            {votingType === "multiple-choice" && category.maxSelections && (
-                                                <CardDescription>
-                                                    Select up to {category.maxSelections} contestant{category.maxSelections > 1 ? "s" : ""}
-                                                </CardDescription>
-                                            )}
-                                            {votingType === "rating" && (
-                                                <CardDescription>
-                                                    Rate each contestant from 1 to {category.ratingScale || 5}
-                                                </CardDescription>
-                                            )}
-                                            {votingType === "head-to-head" && (
-                                                <CardDescription>
-                                                    Compare contestants in pairs and choose your preferred option
-                                                </CardDescription>
-                                            )}
-                                        </CardHeader>
-                                        <CardContent className="space-y-4">
-                                            {/* Render appropriate voting component based on type */}
-                                            {votingType === "rank" && (
-                                                <DndContext
-                                                    sensors={sensors}
-                                                    collisionDetection={closestCenter}
-                                                    onDragEnd={(e) => handleDragEnd(e, category.id)}
+                                        {submitting ? (
+                                            <>
+                                                <motion.div
+                                                    animate={{ rotate: 360 }}
+                                                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                                                 >
-                                                    <SortableContext
-                                                        items={categoryRankings}
-                                                        strategy={verticalListSortingStrategy}
-                                                    >
-                                                        <div className="space-y-2">
-                                                            {categoryRankings.map((contestantId, index) => {
-                                                                const contestant = category.contestants.find(
-                                                                    (c) => c.id === contestantId
-                                                                );
-                                                                if (!contestant) return null;
-                                                                return (
-                                                                    <SortableItem
-                                                                        key={contestantId}
-                                                                        contestant={contestant}
-                                                                        index={index}
-                                                                    />
-                                                                );
-                                                            })}
-                                                        </div>
-                                                    </SortableContext>
-                                                </DndContext>
-                                            )}
-
-                                            {votingType === "pick-one" && (
-                                                <PickOneVote
-                                                    contestants={category.contestants}
-                                                    onVote={(selection) => handlePickOneVote(category.id, selection)}
-                                                    disabled={submitting}
-                                                />
-                                            )}
-
-                                            {votingType === "multiple-choice" && (
-                                                <MultipleChoiceVote
-                                                    contestants={category.contestants}
-                                                    maxSelections={category.maxSelections}
-                                                    onVote={(selections) => handleMultipleChoiceVote(category.id, selections)}
-                                                    disabled={submitting}
-                                                />
-                                            )}
-
-                                            {votingType === "rating" && (
-                                                <RatingVote
-                                                    contestants={category.contestants}
-                                                    maxRating={category.ratingScale || 5}
-                                                    onVote={(ratings) => handleRatingVote(category.id, ratings)}
-                                                    disabled={submitting}
-                                                />
-                                            )}
-
-                                            {votingType === "head-to-head" && (
-                                                <HeadToHeadVote
-                                                    contestants={category.contestants}
-                                                    onVote={(comparisons) => handleHeadToHeadVote(category.id, comparisons)}
-                                                    disabled={submitting}
-                                                />
-                                            )}
-
-                                            <div className="pt-4 border-t">
-                                                <button
-                                                    onClick={() => handleSubmit(category.id)}
-                                                    disabled={submitting || !canSubmit}
-                                                    className={`w-full ${getButtonClass()}`}
-                                                    style={{
-                                                        backgroundColor: custom.primaryColor || undefined,
-                                                        color: "#ffffff",
-                                                        borderRadius: borderRadius,
-                                                        opacity: (submitting || !canSubmit) ? 0.5 : 1,
-                                                        cursor: (submitting || !canSubmit) ? "not-allowed" : "pointer",
-                                                    }}
-                                                >
-                                                    {submitting ? (
-                                                        "Submitting..."
-                                                    ) : (
-                                                        <>
-                                                            <Check className="h-4 w-4 mr-2" />
-                                                            Submit Vote for {category.name}
-                                                        </>
-                                                    )}
-                                                </button>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                );
-                            })}
-                        </div>
-
-                        {contest.categories.every((cat) => {
-                            const votingType = cat.votingType || "rank";
-                            if (votingType === "rank") {
-                                return !(rankings[cat.id] && rankings[cat.id].length > 0);
-                            } else {
-                                return !(votes[cat.id] !== null && votes[cat.id] !== undefined);
-                            }
-                        }) && (
-                                <Card
-                                    className="mt-6"
-                                    style={{
-                                        backgroundColor: custom.backgroundImage
-                                            ? (custom.backgroundColor || "rgba(255, 255, 255, 0.95)")
-                                            : undefined,
-                                    }}
-                                >
-                                    <CardContent className="pt-6 text-center">
-                                        <h2 className="text-2xl font-bold mb-2">All Done!</h2>
-                                        <p className="text-muted-foreground mb-4">
-                                            You've submitted votes for all categories.
-                                        </p>
-                                        <button
-                                            onClick={() => router.push(`/contests/${contest.id}/results`)}
-                                            className={getButtonClass()}
-                                            style={{
-                                                backgroundColor: custom.primaryColor || undefined,
-                                                color: "#ffffff",
-                                                borderRadius: borderRadius,
-                                            }}
-                                        >
-                                            View Results
-                                        </button>
-                                    </CardContent>
-                                </Card>
-                            )}
-                    </div>
+                                                    <Sparkles className="h-5 w-5" />
+                                                </motion.div>
+                                                Submitting...
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Check className="h-5 w-5" />
+                                                Submit Vote for {category.name}
+                                            </>
+                                        )}
+                                    </motion.button>
+                                </motion.div>
+                            </PremiumVotingCard>
+                        );
+                    })}
                 </div>
+
+                {contest.categories.every((cat) => {
+                    const votingType = cat.votingType || "rank";
+                    if (votingType === "rank") {
+                        return !(rankings[cat.id] && rankings[cat.id].length > 0);
+                    } else {
+                        return !(votes[cat.id] !== null && votes[cat.id] !== undefined);
+                    }
+                }) && (
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.5 }}
+                            className="mt-12"
+                        >
+                            <Card
+                                className="border-2 shadow-2xl text-center overflow-hidden relative"
+                                style={{
+                                    backgroundColor: custom.backgroundImage
+                                        ? (custom.backgroundColor || "rgba(255, 255, 255, 0.95)")
+                                        : (custom.backgroundColor || "white"),
+                                    borderRadius: custom.borderRadius || "1.5rem",
+                                }}
+                            >
+                                {/* Success gradient overlay */}
+                                <div className="absolute inset-0 bg-gradient-to-br from-green-500/10 via-transparent to-blue-500/10" />
+                                <CardContent className="pt-12 pb-12 relative z-10">
+                                    <motion.div
+                                        initial={{ scale: 0 }}
+                                        animate={{ scale: 1 }}
+                                        transition={{ type: "spring", delay: 0.2 }}
+                                        className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-green-500 to-emerald-500 mb-6 shadow-lg"
+                                    >
+                                        <CheckCircle2 className="h-10 w-10 text-white" />
+                                    </motion.div>
+                                    <h2 className="text-3xl font-bold mb-3 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+                                        All Done! 🎉
+                                    </h2>
+                                    <p className="text-muted-foreground mb-6 text-lg">
+                                        You've submitted votes for all categories. Thank you for participating!
+                                    </p>
+                                    <motion.button
+                                        onClick={() => router.push(`/contests/${contest.id}/results`)}
+                                        whileHover={{ scale: 1.05 }}
+                                        whileTap={{ scale: 0.95 }}
+                                        className={cn(
+                                            "px-8 py-4 font-semibold text-base shadow-xl hover:shadow-2xl transition-all duration-200",
+                                            getButtonClass()
+                                        )}
+                                        style={{
+                                            backgroundColor: custom.primaryColor || "#3b82f6",
+                                            color: "#ffffff",
+                                            borderRadius: custom.borderRadius || "0.75rem",
+                                        }}
+                                    >
+                                        View Results
+                                    </motion.button>
+                                </CardContent>
+                            </Card>
+                        </motion.div>
+                    )}
             </div>
-        </>
+        </PremiumVotePage>
     );
 }
 

@@ -5,6 +5,8 @@ import { useParams } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Trophy, TrendingUp, Users, UserCheck, Mail, Clock, Twitter, Youtube, Facebook, Instagram, Globe } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { CSVExport } from "@/components/export/CSVExport";
+import { VotingCharts } from "@/components/analytics/VotingCharts";
 
 interface ContestantResult {
     id: string;
@@ -146,12 +148,19 @@ export default function ResultsPage() {
                             <p className="text-muted-foreground">{results.contest.description}</p>
                         )}
                     </div>
-                    <button
-                        onClick={fetchResults}
-                        className="px-4 py-2 text-sm bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
-                    >
-                        Refresh
-                    </button>
+                    <div className="flex items-center gap-2">
+                        <CSVExport
+                            contestName={results.contest.name}
+                            categories={results.categories}
+                            totalVotes={results.totalVotes}
+                        />
+                        <button
+                            onClick={fetchResults}
+                            className="px-4 py-2 text-sm bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
+                        >
+                            Refresh
+                        </button>
+                    </div>
                 </div>
                 <div className="flex items-center gap-4 mt-4 text-sm text-muted-foreground">
                     <div className="flex items-center gap-2">
@@ -164,6 +173,11 @@ export default function ResultsPage() {
                         </span>
                     )}
                 </div>
+            </div>
+
+            {/* Analytics Charts */}
+            <div className="mb-6">
+                <VotingCharts categories={results.categories} />
             </div>
 
             <div className="space-y-6">

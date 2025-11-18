@@ -1,8 +1,10 @@
 import { useRef, useEffect, useState } from "react";
-import { Category, Contestant } from "./types";
+import { Category, Contestant, VotingType } from "./types";
 import { PollHeader } from "./PollHeader";
 import { CategoryCard } from "./CategoryCard";
-import { Sparkles, Plus, ArrowDown } from "lucide-react";
+import { Sparkles, Plus, ArrowDown, ArrowUpDown, CircleDot, ListChecks, Star, GitCompare } from "lucide-react";
+import { getVotingTypeLabel } from "./utils";
+import { motion } from "framer-motion";
 
 interface MainCanvasProps {
     contestName: string;
@@ -18,6 +20,7 @@ interface MainCanvasProps {
     onContestantUpdate?: (categoryId: string, contestantId: string, updates: Partial<Contestant>) => void;
     onContestantDelete?: (categoryId: string, contestantId: string) => void;
     onContestantAdd?: (categoryId: string) => void;
+    onAddCategory?: (type: VotingType) => void;
 }
 
 export function MainCanvas({
@@ -34,6 +37,7 @@ export function MainCanvas({
     onContestantUpdate,
     onContestantDelete,
     onContestantAdd,
+    onAddCategory,
 }: MainCanvasProps) {
     const questionsEndRef = useRef<HTMLDivElement>(null);
     const [isScrolled, setIsScrolled] = useState(false);
@@ -78,33 +82,41 @@ export function MainCanvas({
     return (
         <main
             ref={mainRef}
-            className="flex-1 h-full overflow-y-auto relative bg-gradient-to-br from-slate-50 via-white to-slate-50/30"
+            className="flex-1 h-full overflow-y-auto relative bg-gradient-to-br from-slate-50 via-white via-blue-50/20 to-purple-50/20"
             style={{
                 scrollBehavior: "smooth",
             }}
         >
-            {/* Subtle background pattern */}
-            <div className="fixed inset-0 pointer-events-none opacity-[0.02]">
-                <div
-                    className="absolute inset-0"
-                    style={{
-                        backgroundImage: `radial-gradient(circle at 1px 1px, rgb(0 0 0) 1px, transparent 0)`,
-                        backgroundSize: "32px 32px",
-                    }}
-                />
+            {/* Premium animated background */}
+            <div className="fixed inset-0 pointer-events-none overflow-hidden">
+                {/* Animated gradient orbs */}
+                <div className="absolute -top-40 -right-40 w-80 h-80 rounded-full bg-gradient-to-br from-primary/20 to-secondary/20 blur-3xl animate-pulse" />
+                <div className="absolute -bottom-40 -left-40 w-80 h-80 rounded-full bg-gradient-to-br from-secondary/20 to-primary/20 blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full bg-gradient-to-br from-primary/10 via-transparent to-secondary/10 blur-3xl animate-pulse" style={{ animationDelay: '0.5s' }} />
+
+                {/* Subtle grid pattern */}
+                <div className="absolute inset-0 opacity-[0.03]">
+                    <div
+                        className="absolute inset-0"
+                        style={{
+                            backgroundImage: `radial-gradient(circle at 1px 1px, rgb(0 0 0) 1px, transparent 0)`,
+                            backgroundSize: "32px 32px",
+                        }}
+                    />
+                </div>
             </div>
 
-            {/* Gradient fade at top */}
-            <div className="sticky top-0 z-20 h-24 bg-gradient-to-b from-slate-50 via-slate-50/95 to-transparent pointer-events-none" />
+            {/* Premium gradient fade at top */}
+            <div className="sticky top-0 z-20 h-24 bg-gradient-to-b from-slate-50/95 via-white/90 to-transparent backdrop-blur-sm pointer-events-none" />
 
             <div className="relative z-10 max-w-4xl mx-auto px-6 sm:px-8 lg:px-12 py-8 sm:py-12 pb-40">
-                {/* Header with sticky behavior */}
-                <div className={`sticky top-6 z-30 transition-all duration-300 ${isScrolled ? 'mb-8' : 'mb-12'}`}>
-                    <div className={`transition-all duration-300 ${isScrolled
-                        ? 'shadow-lg rounded-2xl bg-white/95 backdrop-blur-sm border border-slate-200/50'
+                {/* Premium Header with sticky behavior */}
+                <div className={`z-30 transition-all duration-500 ${isScrolled ? 'mb-8' : 'mb-12'}`}>
+                    <div className={`transition-all duration-500 ${isScrolled
+                        ? 'shadow-2xl rounded-3xl bg-white/98 backdrop-blur-md border-2 border-slate-200/60 shadow-primary/5'
                         : 'bg-transparent'
                         }`}>
-                        <div className={isScrolled ? 'p-6' : 'p-0'}>
+                        <div className={isScrolled ? 'p-8' : 'p-0'}>
                             <PollHeader
                                 contestName={contestName}
                                 contestDescription={contestDescription}
@@ -115,35 +127,45 @@ export function MainCanvas({
                     </div>
                 </div>
 
-                {/* Categories List with staggered animations */}
-                <div className="space-y-5 sm:space-y-6">
+                {/* Premium Categories List with enhanced animations */}
+                <div className="space-y-6 sm:space-y-8">
                     {categories.map((cat, idx) => (
-                        <div
+                        <motion.div
                             key={cat.id}
-                            className="animate-in fade-in slide-in-from-bottom-4"
-                            style={{
-                                animationDelay: `${Math.min(idx * 50, 300)}ms`,
-                                animationFillMode: "both",
+                            initial={{ opacity: 0, y: 30, scale: 0.95 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            transition={{
+                                duration: 0.5,
+                                delay: Math.min(idx * 0.1, 0.5),
+                                ease: [0.16, 1, 0.3, 1],
                             }}
+                            whileHover={{ scale: 1.01 }}
+                            className="relative"
                         >
-                            <CategoryCard
-                                category={cat}
-                                index={idx}
-                                isActive={activeCategoryId === cat.id}
-                                onSelect={() => onCategorySelect(cat.id)}
-                                onDelete={(e) => onCategoryDelete(cat.id, e)}
-                                onNameChange={(name) => onCategoryNameChange(cat.id, name)}
-                                onUpdate={onCategoryUpdate ? (updates) => onCategoryUpdate(cat.id, updates) : undefined}
-                                onContestantUpdate={onContestantUpdate ? (contestantId, updates) => onContestantUpdate(cat.id, contestantId, updates) : undefined}
-                                onContestantDelete={onContestantDelete ? (contestantId) => onContestantDelete(cat.id, contestantId) : undefined}
-                                onContestantAdd={onContestantAdd ? () => onContestantAdd(cat.id) : undefined}
-                            />
-                        </div>
+                            {/* Glow effect for active category */}
+                            {activeCategoryId === cat.id && (
+                                <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 via-secondary/20 to-primary/20 rounded-2xl blur-xl opacity-75 animate-pulse" />
+                            )}
+                            <div className="relative">
+                                <CategoryCard
+                                    category={cat}
+                                    index={idx}
+                                    isActive={activeCategoryId === cat.id}
+                                    onSelect={() => onCategorySelect(cat.id)}
+                                    onDelete={(e) => onCategoryDelete(cat.id, e)}
+                                    onNameChange={(name) => onCategoryNameChange(cat.id, name)}
+                                    onUpdate={onCategoryUpdate ? (updates) => onCategoryUpdate(cat.id, updates) : undefined}
+                                    onContestantUpdate={onContestantUpdate ? (contestantId, updates) => onContestantUpdate(cat.id, contestantId, updates) : undefined}
+                                    onContestantDelete={onContestantDelete ? (contestantId) => onContestantDelete(cat.id, contestantId) : undefined}
+                                    onContestantAdd={onContestantAdd ? () => onContestantAdd(cat.id) : undefined}
+                                />
+                            </div>
+                        </motion.div>
                     ))}
                     <div ref={questionsEndRef} className="h-4" />
                 </div>
 
-                {/* Enhanced Empty State */}
+                {/* Enhanced Empty State with Action Options */}
                 {categories.length === 0 && (
                     <div className="animate-in fade-in slide-in-from-bottom-8 duration-700">
                         <div className="relative mt-16 sm:mt-24">
@@ -164,28 +186,75 @@ export function MainCanvas({
                                     Start Building Your Poll
                                 </h3>
                                 <p className="text-sm sm:text-base text-slate-500 max-w-md mx-auto mb-8 leading-relaxed">
-                                    Your poll canvas is ready. Add categories from the sidebar to begin creating your ranked-choice voting contest.
+                                    Choose a voting type to add your first category and begin creating your ranked-choice voting contest.
                                 </p>
 
-                                {/* Visual guide */}
-                                <div className="flex items-center justify-center gap-2 text-slate-400 mb-6">
-                                    <div className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-slate-50 border border-slate-200">
-                                        <Plus className="h-4 w-4" />
-                                        <span className="text-xs font-medium">Add Category</span>
-                                    </div>
-                                    <ArrowDown className="h-4 w-4 animate-bounce" />
-                                </div>
+                                {/* Action Options Grid */}
+                                {onAddCategory && (
+                                    <div className="max-w-2xl mx-auto">
+                                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
+                                            <button
+                                                onClick={() => onAddCategory("rank")}
+                                                className="group relative flex flex-col items-center justify-center gap-2 p-6 rounded-xl border-2 border-slate-200 bg-white hover:border-primary/40 hover:bg-primary/5 transition-all duration-200 hover:shadow-lg hover:scale-105"
+                                            >
+                                                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                                                    <ArrowUpDown className="h-6 w-6 text-primary" />
+                                                </div>
+                                                <span className="text-sm font-medium text-slate-700 group-hover:text-primary transition-colors">
+                                                    {getVotingTypeLabel("rank")}
+                                                </span>
+                                            </button>
 
-                                {/* Decorative dots */}
-                                <div className="flex items-center justify-center gap-2 mt-8">
-                                    {[...Array(3)].map((_, i) => (
-                                        <div
-                                            key={i}
-                                            className="w-2 h-2 rounded-full bg-slate-300 animate-pulse"
-                                            style={{ animationDelay: `${i * 200}ms` }}
-                                        />
-                                    ))}
-                                </div>
+                                            <button
+                                                onClick={() => onAddCategory("pick-one")}
+                                                className="group relative flex flex-col items-center justify-center gap-2 p-6 rounded-xl border-2 border-slate-200 bg-white hover:border-primary/40 hover:bg-primary/5 transition-all duration-200 hover:shadow-lg hover:scale-105"
+                                            >
+                                                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                                                    <CircleDot className="h-6 w-6 text-primary" />
+                                                </div>
+                                                <span className="text-sm font-medium text-slate-700 group-hover:text-primary transition-colors">
+                                                    {getVotingTypeLabel("pick-one")}
+                                                </span>
+                                            </button>
+
+                                            <button
+                                                onClick={() => onAddCategory("multiple-choice")}
+                                                className="group relative flex flex-col items-center justify-center gap-2 p-6 rounded-xl border-2 border-slate-200 bg-white hover:border-primary/40 hover:bg-primary/5 transition-all duration-200 hover:shadow-lg hover:scale-105"
+                                            >
+                                                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                                                    <ListChecks className="h-6 w-6 text-primary" />
+                                                </div>
+                                                <span className="text-sm font-medium text-slate-700 group-hover:text-primary transition-colors">
+                                                    {getVotingTypeLabel("multiple-choice")}
+                                                </span>
+                                            </button>
+
+                                            <button
+                                                onClick={() => onAddCategory("rating")}
+                                                className="group relative flex flex-col items-center justify-center gap-2 p-6 rounded-xl border-2 border-slate-200 bg-white hover:border-primary/40 hover:bg-primary/5 transition-all duration-200 hover:shadow-lg hover:scale-105"
+                                            >
+                                                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                                                    <Star className="h-6 w-6 text-primary" />
+                                                </div>
+                                                <span className="text-sm font-medium text-slate-700 group-hover:text-primary transition-colors">
+                                                    {getVotingTypeLabel("rating")}
+                                                </span>
+                                            </button>
+
+                                            <button
+                                                onClick={() => onAddCategory("head-to-head")}
+                                                className="group relative flex flex-col items-center justify-center gap-2 p-6 rounded-xl border-2 border-slate-200 bg-white hover:border-primary/40 hover:bg-primary/5 transition-all duration-200 hover:shadow-lg hover:scale-105 sm:col-start-2"
+                                            >
+                                                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                                                    <GitCompare className="h-6 w-6 text-primary" />
+                                                </div>
+                                                <span className="text-sm font-medium text-slate-700 group-hover:text-primary transition-colors">
+                                                    {getVotingTypeLabel("head-to-head")}
+                                                </span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -208,8 +277,8 @@ export function MainCanvas({
                 </button>
             )}
 
-            {/* Bottom gradient fade */}
-            <div className="sticky bottom-0 z-20 h-32 bg-gradient-to-t from-slate-50 via-slate-50/95 to-transparent pointer-events-none" />
+            {/* Premium bottom gradient fade */}
+            <div className="sticky bottom-0 z-20 h-32 bg-gradient-to-t from-slate-50/95 via-white/90 to-transparent backdrop-blur-sm pointer-events-none" />
         </main>
     );
 }

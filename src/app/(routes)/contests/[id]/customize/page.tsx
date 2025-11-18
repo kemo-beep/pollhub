@@ -7,8 +7,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Palette, Save, Eye, RotateCcw } from "lucide-react";
+import { Palette, Save, Eye, RotateCcw, Sparkles } from "lucide-react";
 import { toast } from "sonner";
+import { premiumThemes, PremiumTheme } from "@/lib/themes/premium-themes";
+import { PremiumThemeCard } from "@/components/themes/PremiumThemeCard";
+import { motion } from "framer-motion";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface Customization {
     primaryColor?: string;
@@ -45,6 +49,7 @@ export default function CustomizePage() {
     const [saving, setSaving] = useState(false);
     const [customization, setCustomization] = useState<Customization>(defaultCustomization);
     const [previewMode, setPreviewMode] = useState(false);
+    const [selectedTheme, setSelectedTheme] = useState<string | null>(null);
 
     useEffect(() => {
         fetchCustomization();
@@ -175,11 +180,63 @@ export default function CustomizePage() {
                 </div>
             </div>
 
-            <div className="grid gap-6 lg:grid-cols-2">
-                {/* Customization Form */}
-                <div className="space-y-6">
-                    {/* Colors */}
+            <Tabs defaultValue="themes" className="space-y-6">
+                <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="themes" className="gap-2">
+                        <Sparkles className="h-4 w-4" />
+                        Premium Themes
+                    </TabsTrigger>
+                    <TabsTrigger value="custom" className="gap-2">
+                        <Palette className="h-4 w-4" />
+                        Custom Design
+                    </TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="themes" className="space-y-6">
                     <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                                <Sparkles className="h-5 w-5" />
+                                Choose a Premium Theme
+                            </CardTitle>
+                            <CardDescription>
+                                Professionally designed themes that make your voting page stand out
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                                {premiumThemes.map((theme, idx) => (
+                                    <motion.div
+                                        key={theme.id}
+                                        initial={{ opacity: 0, scale: 0.9 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        transition={{ delay: idx * 0.05 }}
+                                    >
+                                        <PremiumThemeCard
+                                            theme={theme}
+                                            isSelected={selectedTheme === theme.id}
+                                            onClick={() => {
+                                                setSelectedTheme(theme.id);
+                                                setCustomization({
+                                                    ...customization,
+                                                    ...theme.customization,
+                                                });
+                                                toast.success(`${theme.name} theme applied!`);
+                                            }}
+                                        />
+                                    </motion.div>
+                                ))}
+                            </div>
+                        </CardContent>
+                    </Card>
+                </TabsContent>
+
+                <TabsContent value="custom" className="space-y-6">
+                    <div className="grid gap-6 lg:grid-cols-2">
+                        {/* Customization Form */}
+                        <div className="space-y-6">
+                            {/* Colors */}
+                            <Card>
                         <CardHeader>
                             <CardTitle>Colors</CardTitle>
                             <CardDescription>Customize the color scheme</CardDescription>
@@ -405,10 +462,10 @@ export default function CustomizePage() {
                             />
                         </CardContent>
                     </Card>
-                </div>
+                        </div>
 
-                {/* Preview */}
-                <div className="lg:sticky lg:top-8 lg:h-fit">
+                        {/* Preview */}
+                        <div className="lg:sticky lg:top-8 lg:h-fit">
                     <Card>
                         <CardHeader>
                             <CardTitle>Live Preview</CardTitle>
@@ -502,8 +559,10 @@ export default function CustomizePage() {
                             </div>
                         </CardContent>
                     </Card>
-                </div>
-            </div>
+                        </div>
+                    </div>
+                </TabsContent>
+            </Tabs>
         </div>
     );
 }

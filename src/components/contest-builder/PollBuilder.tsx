@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Category, Contestant, PollBuilderProps, VotingType } from "./types";
 import { generateId } from "./utils";
 import { Toolbox } from "./Toolbox";
@@ -17,6 +17,22 @@ export function PollBuilder({
     onPreview,
 }: PollBuilderProps) {
     const [activeCategoryId, setActiveCategoryId] = useState<string | null>(null);
+
+    // Auto-select first category when categories are loaded (e.g., from template)
+    useEffect(() => {
+        if (categories.length > 0) {
+            // If no category is selected, or the selected category no longer exists, select the first one
+            setActiveCategoryId((currentId) => {
+                const activeCategoryExists = currentId && categories.some(cat => cat.id === currentId);
+                if (!activeCategoryExists) {
+                    return categories[0].id;
+                }
+                return currentId;
+            });
+        } else {
+            setActiveCategoryId(null);
+        }
+    }, [categories]);
 
     const addCategory = (type: VotingType) => {
         const newCategory: Category = {
@@ -118,6 +134,7 @@ export function PollBuilder({
                 onContestantUpdate={updateContestant}
                 onContestantDelete={deleteContestant}
                 onContestantAdd={addContestant}
+                onAddCategory={addCategory}
             />
 
             {activeCategory && (

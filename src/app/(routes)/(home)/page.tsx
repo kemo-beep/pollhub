@@ -207,7 +207,7 @@ export default async function Home() {
                         }}
                       >
                         {/* Gradient overlay on hover */}
-                        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100 pointer-events-none" />
 
                         {/* Status indicator */}
                         <div className="absolute top-4 right-4">
@@ -227,7 +227,7 @@ export default async function Home() {
                           </div>
                         </div>
 
-                        <CardHeader className="pb-3">
+                        <CardHeader className="pb-3 relative z-10">
                           <CardTitle className="line-clamp-2 text-lg group-hover:text-primary transition-colors">
                             {contest.name}
                           </CardTitle>
@@ -235,7 +235,7 @@ export default async function Home() {
                             {contest.description || "No description provided"}
                           </CardDescription>
                         </CardHeader>
-                        <CardContent className="space-y-4">
+                        <CardContent className="space-y-4 relative z-10">
                           <div className="flex items-center gap-4 text-sm">
                             <div className="flex items-center gap-1.5 text-muted-foreground">
                               <Users className="h-4 w-4" />

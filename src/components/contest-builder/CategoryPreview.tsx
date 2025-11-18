@@ -11,10 +11,17 @@ export function CategoryPreview({ category }: CategoryPreviewProps) {
             <div className="space-y-2">
                 {category.contestants.slice(0, 3).map((c) => (
                     <div key={c.id} className="flex items-center gap-3">
-                        <ArrowUpDown className="h-4 w-4 text-slate-300" />
-                        <div className="h-4 w-1/2 bg-slate-100 rounded-sm" />
+                        <ArrowUpDown className="h-4 w-4 text-slate-300 flex-shrink-0" />
+                        <div className="text-sm text-slate-600 truncate flex-1">
+                            {c.name || "Untitled option"}
+                        </div>
                     </div>
                 ))}
+                {category.contestants.length > 3 && (
+                    <div className="text-xs text-slate-400 pl-7">
+                        +{category.contestants.length - 3} more
+                    </div>
+                )}
             </div>
         );
     }
@@ -24,10 +31,17 @@ export function CategoryPreview({ category }: CategoryPreviewProps) {
             <div className="space-y-2">
                 {category.contestants.slice(0, 2).map((c) => (
                     <div key={c.id} className="flex items-center gap-3">
-                        <div className="w-4 h-4 rounded-full border border-slate-300" />
-                        <div className="h-4 w-1/2 bg-slate-100 rounded-sm" />
+                        <div className="w-4 h-4 rounded-full border border-slate-300 flex-shrink-0" />
+                        <div className="text-sm text-slate-600 truncate flex-1">
+                            {c.name || "Untitled option"}
+                        </div>
                     </div>
                 ))}
+                {category.contestants.length > 2 && (
+                    <div className="text-xs text-slate-400 pl-7">
+                        +{category.contestants.length - 2} more
+                    </div>
+                )}
             </div>
         );
     }
@@ -37,10 +51,17 @@ export function CategoryPreview({ category }: CategoryPreviewProps) {
             <div className="space-y-2">
                 {category.contestants.slice(0, 2).map((c) => (
                     <div key={c.id} className="flex items-center gap-3">
-                        <div className="w-4 h-4 rounded border border-slate-300" />
-                        <div className="h-4 w-1/2 bg-slate-100 rounded-sm" />
+                        <div className="w-4 h-4 rounded border border-slate-300 flex-shrink-0" />
+                        <div className="text-sm text-slate-600 truncate flex-1">
+                            {c.name || "Untitled option"}
+                        </div>
                     </div>
                 ))}
+                {category.contestants.length > 2 && (
+                    <div className="text-xs text-slate-400 pl-7">
+                        +{category.contestants.length - 2} more
+                    </div>
+                )}
             </div>
         );
     }
